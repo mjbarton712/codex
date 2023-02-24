@@ -30,7 +30,7 @@ app.post('/', async (req, res) => {
             model: "text-davinci-003", //several options here, including: text-ada-001, text-babbage-001, text-curie-001, text-davinci-003
             prompt: `${prompt}`,
             temperature: 0.2, //randomness - 1 is max, 0 is repetitive
-            max_tokens: 1500, //there are around 4 characters per token
+            max_tokens: 3000, //there are around 4 characters per token
             top_p: 1,
             frequency_penalty: 0.5, //penalty for repeating the same answer to the same question
             presence_penalty: 0,

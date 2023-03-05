@@ -30,7 +30,7 @@ app.post('/', async (req, res) => {
             model: "gpt-3.5-turbo", //several options here, see GPT models here: https://platform.openai.com/docs/models/overview
             prompt: `${prompt}`,
             temperature: 0.3, //randomness - 1 is max, 0 is repetitive
-            max_tokens: 4000, //there are around 4 characters per token
+            max_tokens: 4096, //there are around 4 characters per token
             top_p: 1,
             frequency_penalty: 0.5, //penalty for repeating the same answer to the same question
             presence_penalty: 0,

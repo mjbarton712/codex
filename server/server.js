@@ -27,10 +27,10 @@ app.post('/', async (req, res) => {
     try {
         const prompt = req.body.prompt;
         const response = await openai.createCompletion({
-            model: "text-davinci-003", //several options here, including: text-ada-001, text-babbage-001, text-curie-001, text-davinci-003
+            model: "gpt-3.5-turbo", //several options here, see GPT models here: https://platform.openai.com/docs/models/overview
             prompt: `${prompt}`,
-            temperature: 0.2, //randomness - 1 is max, 0 is repetitive
-            max_tokens: 3000, //there are around 4 characters per token
+            temperature: 0.3, //randomness - 1 is max, 0 is repetitive
+            max_tokens: 4096, //there are around 4 characters per token
             top_p: 1,
             frequency_penalty: 0.5, //penalty for repeating the same answer to the same question
             presence_penalty: 0,

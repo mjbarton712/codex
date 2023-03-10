@@ -28,7 +28,9 @@ app.post('/', async (req, res) => {
         const prompt = req.body.prompt;
         const response = await openai.createChatCompletion({
             model: "gpt-3.5-turbo", //see GPT models here: https://platform.openai.com/docs/api-reference/chat/create
-            messages: [{role: "user", content: `${prompt}`}],
+            messages: [
+                {role: "system", content: "You are a helpful assistant who answers any question comprehensively."},
+                {role: "user", content: `${prompt}`}],
         })
         res.status(200).send({
             bot: response.data.choices[0].message.content

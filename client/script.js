@@ -5,6 +5,7 @@ import user from './assets/user.svg';
 //for the chatContainer, we target the element using the id
 const form = document.querySelector('form');
 const chatContainer = document.querySelector('#chat_container');
+let conversationHistory = [];
 
 let loadInterval;
 
@@ -68,9 +69,13 @@ const handleSubmit = async (e) => {
   e.preventDefault();
 
   const data = new FormData(form);
+  const userMessage = data.get('prompt');
+
+  // Add the user's message to the conversation history
+  conversationHistory.push({ role: "user", content: userMessage });
 
   //user's chatStripe
-  chatContainer.innerHTML += chatStripe(false, data.get('prompt'));
+  chatContainer.innerHTML += chatStripe(false, userMessage);
   form.reset();
 
   //bot's chatStripe
@@ -87,14 +92,14 @@ const handleSubmit = async (e) => {
   //fetch data from server -> bot's response
   const response = await fetch(
     'https://codex-edaa.onrender.com'
-    //'http://localhost:5000'
+    // uncomment to test server locally - 'http://localhost:5000'
     , {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      prompt:data.get('prompt')
+      prompt: userMessage
     })
   })
 
@@ -103,10 +108,13 @@ const handleSubmit = async (e) => {
 
   if(response.ok) {
     const data = await response.json();
-    const parsedData = data.bot.trim();
+    const botMessage = data.bot.trim();
 
-    console.log({parsedData});
-    typeText(messageDiv, parsedData);
+    conversationHistory.push({ role: "assistant", content: botMessage });
+
+
+    console.log({parsedData: botMessage});
+    typeText(messageDiv, botMessage);
   } else {
     const err = await response.text();
 

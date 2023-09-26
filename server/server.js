@@ -32,7 +32,7 @@ app.post('/', async (req, res) => {
         conversationHistory.push({ role: "user", content: userMessage }); // Add user message to conversation history
         //logRoleAndContent("pre", conversationHistory);
         const response = await openai.createChatCompletion({
-            model: "gpt-4", //see GPT models here: https://platform.openai.com/docs/api-reference/chat/create
+            model: "gpt-3.5-turbo", //see GPT models here: https://platform.openai.com/docs/api-reference/chat/create
             messages: 
             conversationHistory, // Using entire conversation history in API call so that we can have convos
         })

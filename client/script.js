@@ -93,6 +93,7 @@ const handleSubmit = async (e) => {
   const response = await fetch(
     'https://codex-edaa.onrender.com'
     // uncomment to test server locally - 'http://localhost:5000'
+    // go to cd server and npm start server, then from client in another terminal window npm run dev
     , {
     method: 'POST',
     headers: {

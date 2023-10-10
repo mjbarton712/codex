@@ -33,7 +33,7 @@ function typeText(element, text) {
     } else {
       clearInterval(interval);
     }
-  }, 20)
+  }, 10)
 }
 
 //generates unique random id

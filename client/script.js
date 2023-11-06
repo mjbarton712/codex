@@ -2,8 +2,11 @@ import bot from './assets/bot.svg';
 import user from './assets/user.svg';
 
 //we can target the form tag directly because there is only one form
+//same with the textarea prompt
 //for the chatContainer, we target the element using the id
+
 const form = document.querySelector('form');
+const textarea = document.querySelector('textarea');
 const chatContainer = document.querySelector('#chat_container');
 let conversationHistory = [];
 
@@ -73,6 +76,8 @@ const handleSubmit = async (e) => {
 
   // Add the user's message to the conversation history
   conversationHistory.push({ role: "user", content: userMessage });
+  // Resets the height to its original value
+  textarea.style.height = '';  
 
   //user's chatStripe
   chatContainer.innerHTML += chatStripe(false, userMessage);
@@ -113,7 +118,6 @@ const handleSubmit = async (e) => {
 
     conversationHistory.push({ role: "assistant", content: botMessage });
 
-
     console.log({parsedData: botMessage});
     typeText(messageDiv, botMessage);
   } else {
@@ -128,11 +132,15 @@ const handleSubmit = async (e) => {
 //listeners for submit button and adjust textarea height
 form.addEventListener('submit', handleSubmit);
 
-const textarea = document.querySelector('textarea');
+const maxTextAreaHeight = window.innerHeight * 0.5; //max 50% of screen
+textarea.style.maxHeight = `${maxTextAreaHeight}px`;  // Setting max-height here
 
 textarea.addEventListener('input', () => {
-  textarea.style.height = "auto";
-  textarea.style.height = (textarea.scrollHeight) + "px";
+  textarea.style.height = 'auto';
+  if(textarea.scrollHeight < maxTextAreaHeight) {
+    // Only increase the textarea's height if it doesn't exceed the max-height
+    textarea.style.height = `${textarea.scrollHeight}px`;
+   }
 });
 
 //do we want to have enter submit the form? For now, no.

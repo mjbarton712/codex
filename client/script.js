@@ -60,11 +60,17 @@ function chatStripe (isAi, value, uniqueId) {
           />
         </div>
         <div class="message" id=${uniqueId}>${value}</div>
+        ${isAi ? `<button style="font-size: 26px" onclick="copyToClipboard('${uniqueId}')">📋</button>` : ''}
       </div>
     </div>
     `
   )
 }
+
+window.copyToClipboard = function(id) {
+  const textToCopy = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(textToCopy)
+};
 
 //what to do when the prompt is submitted
 const handleSubmit = async (e) => {
@@ -132,15 +138,18 @@ const handleSubmit = async (e) => {
 //listeners for submit button and adjust textarea height
 form.addEventListener('submit', handleSubmit);
 
-const maxTextAreaHeight = window.innerHeight * 0.5; //max 50% of screen
-textarea.style.maxHeight = `${maxTextAreaHeight}px`;  // Setting max-height here
+const maxTextAreaHeight = window.innerHeight * 0.5; //max 50% of screen height
+textarea.style.overflowY = 'auto'; // enable scrolling
 
 textarea.addEventListener('input', () => {
-  textarea.style.height = 'auto';
-  if(textarea.scrollHeight < maxTextAreaHeight) {
-    // Only increase the textarea's height if it doesn't exceed the max-height
+  if(textarea.scrollHeight <= maxTextAreaHeight) {
+    // auto resize textarea when content doesn't exceed 50% screen height
+    textarea.style.height = 'auto';
     textarea.style.height = `${textarea.scrollHeight}px`;
-   }
+  } else {
+    // fix textarea height at 50% screen height when content exceeds it
+    textarea.style.height = `${maxTextAreaHeight}px`;
+  }
 });
 
 //do we want to have enter submit the form? For now, no.

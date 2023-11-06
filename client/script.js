@@ -125,8 +125,17 @@ const handleSubmit = async (e) => {
   }
 }
 
-//listeners for submit button and enter key
+//listeners for submit button and adjust textarea height
 form.addEventListener('submit', handleSubmit);
+
+const textarea = document.querySelector('textarea');
+
+textarea.addEventListener('input', () => {
+  textarea.style.height = "auto";
+  textarea.style.height = (textarea.scrollHeight) + "px";
+});
+
+//do we want to have enter submit the form? For now, no.
 /*form.addEventListener('keyup', (e) => {
   if(e.keyCode === 13) { //13 = enter key
     handleSubmit(e);

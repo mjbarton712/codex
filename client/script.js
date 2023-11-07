@@ -35,8 +35,14 @@ function typeText(element, text) {
       index++;
     } else {
       clearInterval(interval);
+
+      // Highlight code blocks enclosed in triple backticks
+      const codeBlocks = element.querySelectorAll('pre code');
+      codeBlocks.forEach(block => {
+        Prism.highlightElement(block);
+      });
     }
-  }, 10)
+  }, 10);
 }
 
 //generates unique random id
@@ -49,6 +55,7 @@ function generateUniqueId() {
 
 //create striped background in chat to determine if AI is speaking or we are
 function chatStripe (isAi, value, uniqueId) {
+  value = value.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
   return (
     `
     <div class="wrapper ${isAi && 'ai'}">

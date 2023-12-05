@@ -28,18 +28,19 @@ conversationHistory.push({ role: "system", content: "You are a helpful assistant
 //for pricing details, see - https://openai.com/api/pricing/#faq-fine-tuning-pricing-calculation
 app.post('/', async (req, res) => {
     try {
+        const gptModel = req.body.model || "gpt-3.5-turbo";
         const userMessage = req.body.prompt;
+        console.log(gptModel);
+
         conversationHistory.push({ role: "user", content: userMessage }); // Add user message to conversation history
-        //logRoleAndContent("pre", conversationHistory);
         const response = await openai.createChatCompletion({
-            model: "gpt-4", //see GPT models here: https://platform.openai.com/docs/api-reference/chat/create
+            model: gptModel, //see GPT models here: https://platform.openai.com/docs/api-reference/chat/create
             messages: 
             conversationHistory, // Using entire conversation history in API call so that we can have convos
         })
 
         // Add bot's response to convo history as well
         conversationHistory.push({ role: "assistant", content: response.data.choices[0].message.content });
-        //logRoleAndContent("post", conversationHistory);
 
         res.status(200).send({
             bot: response.data.choices[0].message.content

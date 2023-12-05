@@ -54,9 +54,9 @@ function generateUniqueId() {
   return `id-${timestamp}-${hexadecimalString}`;
 }
 
- //function to update the model value based on the selected option
- function updateModel() {
-  const gptModel = document.getElementById('gptModel');
+//function to update the model value based on the selected option
+function updateModel() {
+  const gptModel = document.getElementById('modelSelect');
   // Update the global variable with the selected model
   selectedModel = gptModel.value;
 

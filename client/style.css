@@ -146,16 +146,17 @@ button {
 
 label {
   color:#dcdcdc;
-
+  margin-top: 5px;
 }
 
 select{
   background-color: #40414F;
   color:#dcdcdc;
+  border-radius: 5px;
 }
 
 option{
-  color: yellow;
+  color: #dcdcdc;
 }
 
 form img {

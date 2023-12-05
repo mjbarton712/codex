@@ -53,6 +53,19 @@ function generateUniqueId() {
   return `id-${timestamp}-${hexadecimalString}`;
 }
 
+ //function to update the model value based on the selected option
+ function updateModel() {
+  
+
+  // You can use the selected model value in your API request
+  // For example, you can pass it in the request body or as a query parameter
+  // Update the API call in your existing script accordingly
+  // Example: fetch('http://localhost:5000/', { method: 'POST', body: JSON.stringify({ prompt: userMessage, model: selectedModel }), headers: { 'Content-Type': 'application/json' } })
+
+  // Log the selected model for demonstration purposes
+  console.log('Selected Model:', selectedModel);
+}
+
 //create striped background in chat to determine if AI is speaking or we are
 function chatStripe (isAi, value, uniqueId) {
   value = value.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
@@ -87,6 +100,9 @@ const handleSubmit = async (e) => {
   const data = new FormData(form);
   const userMessage = data.get('prompt');
 
+  const gptModel = document.getElementById('gptModel');
+  const selectedModel = gptModel.value;
+
   // Add the user's message to the conversation history
   conversationHistory.push({ role: "user", content: userMessage });
   // Resets the height to its original value
@@ -118,6 +134,7 @@ const handleSubmit = async (e) => {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
+      model: selectedModel,
       prompt: userMessage
     })
   })

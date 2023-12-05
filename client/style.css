@@ -144,6 +144,20 @@ button {
   background: transparent;
 }
 
+label {
+  color:#dcdcdc;
+
+}
+
+select{
+  background-color: #40414F;
+  color:#dcdcdc;
+}
+
+option{
+  color: yellow;
+}
+
 form img {
   width: 30px;
   height: 30px;

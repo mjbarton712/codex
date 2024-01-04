@@ -9,6 +9,7 @@ const form = document.querySelector('form');
 const textarea = document.querySelector('textarea');
 const chatContainer = document.querySelector('#chat_container');
 let conversationHistory = [];
+let selectedModel = '';
 
 let loadInterval;
 
@@ -53,14 +54,11 @@ function generateUniqueId() {
   return `id-${timestamp}-${hexadecimalString}`;
 }
 
- //function to update the model value based on the selected option
- function updateModel() {
-  
-
-  // You can use the selected model value in your API request
-  // For example, you can pass it in the request body or as a query parameter
-  // Update the API call in your existing script accordingly
-  // Example: fetch('http://localhost:5000/', { method: 'POST', body: JSON.stringify({ prompt: userMessage, model: selectedModel }), headers: { 'Content-Type': 'application/json' } })
+//function to update the model value based on the selected option
+function updateModel() {
+  let gptModel = document.getElementById('modelSelect');
+  // Update the global variable with the selected model
+  selectedModel = gptModel.value;
 
   // Log the selected model for demonstration purposes
   console.log('Selected Model:', selectedModel);
@@ -99,9 +97,6 @@ const handleSubmit = async (e) => {
 
   const data = new FormData(form);
   const userMessage = data.get('prompt');
-
-  const gptModel = document.getElementById('gptModel');
-  const selectedModel = gptModel.value;
 
   // Add the user's message to the conversation history
   conversationHistory.push({ role: "user", content: userMessage });

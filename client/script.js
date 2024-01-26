@@ -26,25 +26,24 @@ function loader(element) {
   }, 300)
 }
 
-//types out codex's answer as if a human were typing it instead of all at once
+// Display the entire text and apply Prism highlighting at once
 function typeText(element, text) {
-  let index = 0;
+  // Extract language from triple backticks, if present
+  const codeBlockRegex = /```([a-zA-Z]+)?\s*([\s\S]*?)```/g;
+  text = text.replace(codeBlockRegex, (match, language, code) => {
+    const highlightedCode = Prism.highlight(code, Prism.languages[language], language);
+    return `<pre class="language-${language}"><code>${highlightedCode}</code></pre>`;
+  });
 
-  let interval = setInterval(() => {
-    if(index < text.length) {
-      element.innerHTML += text.charAt(index);
-      index++;
-    } else {
-      clearInterval(interval);
+  element.innerHTML = text;
 
-      // Highlight code blocks enclosed in triple backticks
-      const codeBlocks = element.querySelectorAll('pre code');
-      codeBlocks.forEach(block => {
-        Prism.highlightElement(block);
-      });
-    }
-  }, 10);
+  // Highlight code blocks enclosed in triple backticks
+  const codeBlocks = element.querySelectorAll('pre code');
+  codeBlocks.forEach(block => {
+    Prism.highlightElement(block);
+  });
 }
+
 
 //generates unique random id
 function generateUniqueId() {
@@ -65,8 +64,7 @@ function updateModel() {
 }
 
 //create striped background in chat to determine if AI is speaking or we are
-function chatStripe (isAi, value, uniqueId) {
-  value = value.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+function chatStripe(isAi, value, uniqueId) {
   return (
     `
     <div class="wrapper ${isAi && 'ai'}">
@@ -82,8 +80,9 @@ function chatStripe (isAi, value, uniqueId) {
       </div>
     </div>
     `
-  )
+  );
 }
+
 
 window.copyToClipboard = function(id) {
   const textToCopy = document.getElementById(id).textContent;

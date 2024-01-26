@@ -28,8 +28,17 @@ function loader(element) {
 
 //types out codex's answer as if a human were typing it instead of all at once
 function typeText(element, text) {
-  let index = 0;
+  // Extract language from triple backticks, if present
+  const codeBlockRegex = /```([a-zA-Z]+)?\s*([\s\S]*?)```/g;
+  console.log(`BEFORE value - ${text}`);
+  text = text.replace(codeBlockRegex, (match, language, code) => {
+    console.log(`replacing code content for ${language}`);
+    const highlightedCode = Prism.highlight(code, Prism.languages[language], language);
+    return `<pre class="language-${language}"><code>${highlightedCode}</code></pre>`;
+  });
+  console.log(`AFTER value - ${text}`);
 
+  let index = 0;
   let interval = setInterval(() => {
     if(index < text.length) {
       element.innerHTML += text.charAt(index);
@@ -66,13 +75,6 @@ function updateModel() {
 
 //create striped background in chat to determine if AI is speaking or we are
 function chatStripe(isAi, value, uniqueId) {
-  // Extract language from triple backticks, if present
-  const codeBlockRegex = /```([a-zA-Z]+)?\s*([\s\S]*?)```/g;
-  value = value.replace(codeBlockRegex, (match, language, code) => {
-    const highlightedCode = Prism.highlight(code, Prism.languages[language], language);
-    return `<pre class="language-${language}"><code>${highlightedCode}</code></pre>`;
-  });
-
   return (
     `
     <div class="wrapper ${isAi && 'ai'}">

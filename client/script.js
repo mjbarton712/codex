@@ -26,34 +26,24 @@ function loader(element) {
   }, 300)
 }
 
-//types out codex's answer as if a human were typing it instead of all at once
+// Display the entire text and apply Prism highlighting at once
 function typeText(element, text) {
   // Extract language from triple backticks, if present
   const codeBlockRegex = /```([a-zA-Z]+)?\s*([\s\S]*?)```/g;
-  console.log(`BEFORE value - ${text}`);
   text = text.replace(codeBlockRegex, (match, language, code) => {
-    console.log(`replacing code content for ${language}`);
     const highlightedCode = Prism.highlight(code, Prism.languages[language], language);
     return `<pre class="language-${language}"><code>${highlightedCode}</code></pre>`;
   });
-  console.log(`AFTER value - ${text}`);
 
-  let index = 0;
-  let interval = setInterval(() => {
-    if(index < text.length) {
-      element.innerHTML += text.charAt(index);
-      index++;
-    } else {
-      clearInterval(interval);
+  element.innerHTML = text;
 
-      // Highlight code blocks enclosed in triple backticks
-      const codeBlocks = element.querySelectorAll('pre code');
-      codeBlocks.forEach(block => {
-        Prism.highlightElement(block);
-      });
-    }
-  }, 10);
+  // Highlight code blocks enclosed in triple backticks
+  const codeBlocks = element.querySelectorAll('pre code');
+  codeBlocks.forEach(block => {
+    Prism.highlightElement(block);
+  });
 }
+
 
 //generates unique random id
 function generateUniqueId() {

@@ -32,7 +32,10 @@ function outputAIText(element, text, language) {
   const codeBlockRegex = /\n?```([a-zA-Z]+)?\s*([\s\S]*?)```\n?\n?/g;
   text = text.replace(codeBlockRegex, (match, lang, code) => {
     language = lang || language || ''; // Use specified language or fallback to empty string
-    const highlightedCode = Prism.highlight(code, Prism.languages[language], language);
+    const supportedLanguages = ["javascript", "java", "html", "css", "python", "batch", "powershell", "typescript", "c", "csharp", "cpp", "ruby", "go", "swift"];
+    let filteredLanguage = supportedLanguages.includes(language) ? `${language}` : "text";
+
+    const highlightedCode = Prism.highlight(code, Prism.languages[filteredLanguage], filteredLanguage);
     return `<div class="code-container">
               <div class="top-bar">
                 <span class="language-label">${language}</span>
@@ -42,7 +45,7 @@ function outputAIText(element, text, language) {
                   </button>
                 </span>
               </div>
-              <pre class="language-${language}"><code>${highlightedCode}</code></pre>
+              <pre class="language-${filteredLanguage}"><code>${highlightedCode}</code></pre>
             </div>`;
   });
 

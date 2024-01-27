@@ -24,7 +24,7 @@ body {
 
 #chat_container {
   flex: 1;
-  width: 100%;
+  width: 80%;
   height: 100%;
   overflow-y: scroll;
 
@@ -88,10 +88,8 @@ body {
 
 .message {
   flex: 1;
-
   color: #dcdcdc;
-  font-size: 20px;
-
+  font-size: 18px;
   max-width: 100%;
   overflow-x: scroll;
 
@@ -102,9 +100,42 @@ body {
    * The default value for the white-space property in CSS is "normal". This tells the browser to collapse multiple white space characters into a single space, and to wrap text onto multiple lines as needed to fit within its container.
   */
   white-space: pre-wrap; 
-
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+.code-container {
+  position: relative;
+  margin: 1em 0;
+  white-space: normal;
+}
+
+.top-bar {
+  top: 0;
+  left: 0;
+  background-color: #232323;
+  color: #fff;
+  padding: 0.1em 0.5em;
+  border-radius: 0.4em 0.4em 0 0;
+  margin: 0em;
+  height: auto;
+}
+
+.language-label {
+  font-size: 0.8em;
+}
+
+.copy-code {
+  float:right;
+}
+
+.copy-code-snippet {
+  color: white;
+}
+
+pre {
+  margin: 0em !important;
+  padding: .5em 1em .5em 1em !important;
 }
 
 /* hides scrollbar */

@@ -26,24 +26,34 @@ function loader(element) {
   }, 300)
 }
 
-// Display the entire text and apply Prism highlighting at once
-function typeText(element, text) {
+// Display the entire text with language label and apply Prism highlighting at once
+function outputAIText(element, text, language) {
   // Extract language from triple backticks, if present
-  const codeBlockRegex = /```([a-zA-Z]+)?\s*([\s\S]*?)```/g;
-  text = text.replace(codeBlockRegex, (match, language, code) => {
+  const codeBlockRegex = /\n?```([a-zA-Z]+)?\s*([\s\S]*?)```\n?\n?/g;
+  text = text.replace(codeBlockRegex, (match, lang, code) => {
+    language = lang || language || ''; // Use specified language or fallback to empty string
     const highlightedCode = Prism.highlight(code, Prism.languages[language], language);
-    return `<pre class="language-${language}"><code>${highlightedCode}</code></pre>`;
+    return `<div class="code-container">
+              <div class="top-bar">
+                <span class="language-label">${language}</span>
+                <span class="copy-code">
+                  <button class="copy-code-snippet" onclick="copyCodeSnippetToClipboard(this)">
+                  Copy code 📋
+                  </button>
+                </span>
+              </div>
+              <pre class="language-${language}"><code>${highlightedCode}</code></pre>
+            </div>`;
   });
 
   element.innerHTML = text;
 
   // Highlight code blocks enclosed in triple backticks
-  const codeBlocks = element.querySelectorAll('pre code');
+  const codeBlocks = element.querySelectorAll('.code-container code');
   codeBlocks.forEach(block => {
     Prism.highlightElement(block);
   });
 }
-
 
 //generates unique random id
 function generateUniqueId() {
@@ -83,11 +93,17 @@ function chatStripe(isAi, value, uniqueId) {
   );
 }
 
-
 window.copyToClipboard = function(id) {
   const textToCopy = document.getElementById(id).textContent;
   navigator.clipboard.writeText(textToCopy)
 };
+
+window.copyCodeSnippetToClipboard = function(buttonElement) {
+  const codeContainer = buttonElement.closest('.code-container');
+  const textToCopy = codeContainer.querySelector('code').textContent;
+  navigator.clipboard.writeText(textToCopy);
+};
+
 
 //what to do when the prompt is submitted
 const handleSubmit = async (e) => {
@@ -143,7 +159,7 @@ const handleSubmit = async (e) => {
     conversationHistory.push({ role: "assistant", content: botMessage });
 
     console.log({parsedData: botMessage});
-    typeText(messageDiv, botMessage);
+    outputAIText(messageDiv, botMessage);
   } else {
     const err = await response.text();
 

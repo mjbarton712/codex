@@ -10,15 +10,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Codex</title>
   <link rel="stylesheet" href="style.css">
+  <script type="module" src="script.js"></script>
+  <script type="module">
+    import { updateModel } from './script.js';
+    window.updateModel = updateModel;
+  </script>
 </head>
 
 <body>
   <div id="app">
     <label for="modelSelect">Select a Model:</label>
     <select id="modelSelect" onchange="updateModel()">
-      <option value="gpt-3.5-turbo">GPT-3.5-turbo</option>
+      <option value="gpt-3.5-turbo">GPT-3.5-turbo (16k)</option>
       <option value="gpt-4">GPT-4 (8K)</option>
-      <option value="gpt-4-1106-preview">GPT-4-turbo (128K)</option>
+      <option value="gpt-4-turbo-preview">GPT-4-turbo (128K)</option>
     </select>
     <div id="chat_container"></div>
     <form>
@@ -27,7 +32,6 @@
     </form>
   </div>
   
-  <script type="module" src="script.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-python.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-javascript.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-java.min.js"></script>

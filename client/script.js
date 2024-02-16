@@ -67,7 +67,7 @@ function generateUniqueId() {
 }
 
 //function to update the model value based on the selected option
-function updateModel() {
+export function updateModel() {
   let gptModel = document.getElementById('modelSelect');
   // Update the global variable with the selected model
   selectedModel = gptModel.value;
@@ -188,6 +188,7 @@ textarea.addEventListener('input', () => {
     textarea.style.height = `${maxTextAreaHeight}px`;
   }
 });
+
 
 //do we want to have enter submit the form? For now, no.
 /*form.addEventListener('keyup', (e) => {

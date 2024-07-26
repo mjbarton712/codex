@@ -1,7 +1,10 @@
 import express from 'express';
 import * as dotenv from 'dotenv';
 import cors from 'cors';
+import multer from 'multer';
 import { Configuration, OpenAIApi } from 'openai';
+import fs from 'fs';
+import path from 'path';
 
 dotenv.config();
 
@@ -15,10 +18,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const upload = multer({ dest: 'uploads/' });
+
 app.get('/', async (req, res) => {
     res.status(200).send({
         message: 'Hello from Codex',
-    })
+    });
 });
 
 const conversationHistory = []; // Initialize an empty conversation history array
@@ -26,25 +31,41 @@ conversationHistory.push({ role: "system", content: "You are a helpful assistant
 
 //post to openai from a text model
 //for pricing details, see - https://openai.com/api/pricing/#faq-fine-tuning-pricing-calculation
-app.post('/', async (req, res) => {
+app.post('/', upload.single('image'), async (req, res) => {
     try {
         const gptModel = req.body.model || "gpt-4o-mini";
         const userMessage = req.body.prompt;
-        console.log(gptModel);
 
         conversationHistory.push({ role: "user", content: userMessage }); // Add user message to conversation history
+        let imageContent = null;
+        if (req.file) {
+            const imagePath = path.resolve(req.file.path);
+            const base64Image = fs.readFileSync(imagePath, { encoding: 'base64' });
+            const mimeType = req.file.mimetype;
+            imageContent = {
+                type: "image_url",
+                image_url: {
+                    url: `data:${mimeType};base64,${base64Image}`
+                }
+            };
+            fs.unlinkSync(imagePath);
+        }
+        const messages = imageContent
+            ? [
+                { role: "user", content: userMessage },
+                { role: "user", content: imageContent }
+            ]
+            : conversationHistory;
         const response = await openai.createChatCompletion({
-            model: gptModel, //see GPT models here: https://platform.openai.com/docs/api-reference/chat/create
-            messages: 
-            conversationHistory, // Using entire conversation history in API call so that we can have convos
-        })
-
+            model: gptModel,
+            messages: messages,
+        });
         // Add bot's response to convo history as well
         conversationHistory.push({ role: "assistant", content: response.data.choices[0].message.content });
 
         res.status(200).send({
             bot: response.data.choices[0].message.content
-        })
+        });
     } catch (error) {
         if (error.response) {
             // The request was made and the server responded with a status code

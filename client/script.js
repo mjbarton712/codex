@@ -8,6 +8,7 @@ import user from './assets/user.svg';
 const form = document.querySelector('form');
 const textarea = document.querySelector('textarea');
 const chatContainer = document.querySelector('#chat_container');
+const imageInput = document.getElementById('imageInput');
 let conversationHistory = [];
 let selectedModel = '';
 
@@ -135,6 +136,14 @@ const handleSubmit = async (e) => {
   const messageDiv = document.getElementById(uniqueId);
 
   loader(messageDiv);
+
+  const formData = new FormData();
+  //fetch data from server -> bot's response
+  formData.append('model', selectedModel);
+  formData.append('prompt', userMessage);
+  if (imageInput.files[0]) {
+    formData.append('image', imageInput.files[0]); // Add image to formData if present
+  }
 
   //fetch data from server -> bot's response
   const response = await fetch(

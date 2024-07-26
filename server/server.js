@@ -28,7 +28,7 @@ conversationHistory.push({ role: "system", content: "You are a helpful assistant
 //for pricing details, see - https://openai.com/api/pricing/#faq-fine-tuning-pricing-calculation
 app.post('/', async (req, res) => {
     try {
-        const gptModel = req.body.model || "gpt-3.5-turbo";
+        const gptModel = req.body.model || "gpt-4o-mini";
         const userMessage = req.body.prompt;
         console.log(gptModel);
 

@@ -7,9 +7,27 @@
   <link rel="icon" type="image/svg+xml" href="favicon.ico" />
   <link href="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/themes/prism-tomorrow.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Codex</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-python.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-java.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-css.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-batch.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-powershell.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-c.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-cpp.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-csharp.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-jsx.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-ruby.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-go.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-swift.min.js"></script>
   <script type="module" src="script.js"></script>
   <script type="module">
     import { updateModel } from './script.js';
@@ -19,30 +37,20 @@
 
 <body>
   <div id="app">
-    <label for="modelSelect">Select a Model:</label>
-    <select id="modelSelect" onchange="updateModel()">
-      <option value="gpt-4o-mini">gpt-4o-mini (128K)</option>
-      <option value="gpt-4o">gpt-4o (128k)</option>
-    </select>
+    <div class="model-selector-container">
+      <label for="modelSelect">Model:</label>
+      <select id="modelSelect" onchange="updateModel()">
+        <option value="gpt-4.1-2025-04-14" selected>gpt-4.1 (1M)</option>
+        <option value="gpt-4o-mini">gpt-4o-mini (128K)</option>
+        <option value="gpt-4o">gpt-4o (128k)</option>
+      </select>
+    </div>
     <div id="chat_container"></div>
     <form>
-      <textarea name="prompt" rows="1" cols="1" placeholder="Ask Codex..."></textarea>
-      <button type="submit"><img src="assets/send.svg" /></button>
+      <textarea name="prompt" rows="1" cols="1" placeholder="Ask anything..."></textarea>
+      <button type="submit"><i data-lucide="send"></i></button>
     </form>
   </div>
   
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-python.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-javascript.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-java.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-css.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-batch.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-powershell.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-typescript.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-c.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-cpp.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-csharp.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-ruby.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-go.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-swift.min.js"></script>
 </body>
 </html>

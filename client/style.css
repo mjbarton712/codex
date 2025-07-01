@@ -1,21 +1,36 @@
-@import url("https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@100;300;400;500;700;800;900&display=swap");
+/* Import a modern font, but also include system fonts for performance and native feel */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --background-color: #1a1a2e;
+  --bubble-color: #2a2a3e;
+  --form-color: #2a2a3e;
+  --text-color: #e0e0e0;
+  --subtle-text-color: #a0a0b0;
+  --user-message-gradient: linear-gradient(135deg, #e94560, #b83b5e);
+  --ai-accent-color: #93a6ee;
+  --border-color: #3a3a4e;
+  --hover-color: #3a3a4e;
+  --accent-color: #e94560; /* Main accent from gradient */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Alegreya Sans", sans-serif;
+  font-family: var(--font-family);
 }
 
 body {
-  background: #343541;
+  background: var(--background-color);
+  color: var(--text-color);
 }
 
 #app {
   width: 100vw;
   height: 100vh;
-  background: #343541;
-
+  background: var(--background-color);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -24,173 +39,304 @@ body {
 
 #chat_container {
   flex: 1;
-  width: 80%;
+  width: 90%;
+  max-width: 860px;
   height: 100%;
-  overflow-y: scroll;
-
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-
-  padding-bottom: 20px;
+  gap: 20px;
+  padding: 20px 10px;
   scroll-behavior: smooth;
 }
 
-/* hides scrollbar */
 #chat_container::-webkit-scrollbar {
-  display: none;
+  width: 8px;
+}
+
+#chat_container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#chat_container::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 4px;
 }
 
 .wrapper {
   width: 100%;
-  padding: 15px;
+  padding: 0;
 }
 
 .ai {
-  background: #40414F;
+  background: transparent;
 }
 
 .chat {
   width: 100%;
-  max-width: 1280px;
   margin: 0 auto;
-
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  gap: 10px;
+  gap: 15px;
 }
 
 .profile {
-  width: 36px;
-  height: 36px;
-  border-radius: 5px;
-
-  background: #5436DA;
-
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background: var(--accent-color);
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .ai .profile {
-  background: #10a37f;
+  background: var(--ai-accent-color);
 }
 
-.profile img {
-  width: 60%;
-  height: 60%;
-  object-fit: contain;
+.profile .lucide {
+    color: #fff;
 }
 
 .message {
   flex: 1;
-  color: #dcdcdc;
-  font-size: 18px;
+  color: var(--text-color);
+  font-size: 16px;
+  line-height: 1.6;
   max-width: 100%;
-  overflow-x: scroll;
+  overflow-x: hidden;
+  white-space: normal;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: var(--bubble-color);
+  border: 1px solid var(--border-color);
+}
 
-  /*
-   * white space refers to any spaces, tabs, or newline characters that are used to format the CSS code
-   * specifies how white space within an element should be handled. It is similar to the "pre" value, which tells the browser to treat all white space as significant and to preserve it exactly as it appears in the source code.
-   * The pre-wrap value allows the browser to wrap long lines of text onto multiple lines if necessary.
-   * The default value for the white-space property in CSS is "normal". This tells the browser to collapse multiple white space characters into a single space, and to wrap text onto multiple lines as needed to fit within its container.
-  */
-  white-space: pre-wrap; 
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+.wrapper:not(.ai) {
+    float: right;
+}
+
+.wrapper:not(.ai) .chat {
+    flex-direction: row-reverse;
+    width: auto;
+    max-width: 85%;
+    display: flex;
+    justify-content: flex-end;
+    float: right;
+}
+
+.wrapper:not(.ai) .message {
+    background: var(--user-message-gradient);
+    color: #fff;
+    border: none;
+    display: flex;
+    justify-content: flex-end;
+    float: right;
+}
+
+.message h1, .message h2, .message h3 {
+  margin-top: 0.8em;
+  margin-bottom: 0.4em;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.message h1 { font-size: 1.5em; }
+.message h2 { font-size: 1.3em; }
+.message h3 { font-size: 1.15em; }
+.message p { margin-bottom: 0.5em; }
+.message strong, .message b { font-weight: 600; }
+.message em, .message i { font-style: italic; }
+.message ul, .message ol { padding-left: 1.5em; margin-bottom: 1em; }
+.message li { margin-bottom: 0.4em; }
+
+.message blockquote {
+  border-left: 2px solid var(--accent-color);
+  padding-left: 1em;
+  margin: 1em 0;
+  font-style: italic;
+  color: var(--subtle-text-color);
+}
+
+.message code {
+  background-color: rgba(0,0,0,0.3);
+  padding: 0.2em 0.4em;
+  border-radius: 5px;
+  font-family: "SF Mono", "Fira Code", "Courier New", monospace;
+  font-size: 0.9em;
+}
+
+.message pre code {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
 }
 
 .code-container {
-  position: relative;
-  margin: 1em 0;
+  background-color: #0c0c0c;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  margin: 1.5em 0;
+  overflow: hidden;
   white-space: normal;
 }
 
 .top-bar {
-  top: 0;
-  left: 0;
-  background-color: #232323;
-  color: #fff;
-  padding: 0.1em 0.5em;
-  border-radius: 0.4em 0.4em 0 0;
-  margin: 0em;
-  height: auto;
+  background-color: #1a1a1a;
+  color: var(--subtle-text-color);
+  padding: 8px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .language-label {
-  font-size: 0.8em;
-}
-
-.copy-code {
-  float:right;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .copy-code-snippet {
-  color: white;
+  background: transparent;
+  color: var(--subtle-text-color);
+  border: none;
+  padding: 2px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.9em;
+  transition: color 0.2s ease;
+}
+
+.copy-code-snippet:hover {
+  color: var(--text-color);
 }
 
 pre {
-  margin: 0em !important;
-  padding: .5em 1em .5em 1em !important;
-}
-
-/* hides scrollbar */
-.message::-webkit-scrollbar {
-  display: none;
+  margin: 0 !important;
+  padding: 1em !important;
+  overflow-x: auto;
 }
 
 form {
-  width: 100%;
-  max-width: 1280px;
+  width: 90%;
+  max-width: 860px;
   margin: 0 auto;
-  padding: 10px;
-  background: #40414F;
-
+  padding: 10px 0 25px 0;
+  background: transparent;
   display: flex;
   flex-direction: row;
   gap: 10px;
+  align-items: flex-end;
 }
 
 textarea {
   width: 100%;
-
-  color: #fff;
-  font-size: 18px;
-
-  padding: 10px;
-  background: transparent;
-  border-radius: 5px;
-  border: none;
+  color: var(--text-color);
+  font-size: 16px;
+  padding: 10px 16px;
+  background: var(--form-color);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
   outline: none;
+  resize: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  line-height: 1.6;
 }
 
-button {
+textarea:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.3);
+}
+
+button[type="submit"] {
   outline: 0;
   border: 0;
   cursor: pointer;
-  background: transparent;
+  background: var(--accent-color);
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background-color 0.2s ease;
 }
 
-label {
-  color:#dcdcdc;
-  margin: 5px;
+button[type="submit"]:hover {
+  background-color: #b83b5e;
 }
 
-select{
-  background-color: #40414F;
-  color:#dcdcdc;
-  border-radius: 5px;
+.copy-btn {
+    background: none;
+    border: none;
+    color: var(--subtle-text-color);
+    cursor: pointer;
+    font-size: 18px;
+    opacity: 0.6;
+    transition: opacity 0.2s ease, color 0.2s ease;
+    align-self: center;
+    margin-left: 8px;
+    padding: 4px;
 }
 
-option{
-  color: #dcdcdc;
+.copy-btn:hover {
+    opacity: 1;
+    color: var(--text-color);
 }
 
-form img {
-  width: 30px;
-  height: 30px;
+.model-selector-container {
+    padding: 15px 0 5px 0;
+    width: 90%;
+    max-width: 860px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+label[for="modelSelect"] {
+  color: var(--subtle-text-color);
+  font-size: 14px;
+}
+
+select#modelSelect {
+  background-color: var(--form-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+select#modelSelect:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.3);
+}
+
+option {
+  color: var(--text-color);
+  background-color: var(--form-color);
+}
+
+.lucide {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+}
+
+button[type="submit"] .lucide {
+    color: #fff;
+}
+
+.copy-code-snippet .lucide {
+    width: 16px;
+    height: 16px;
 }

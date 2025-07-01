@@ -1,64 +1,71 @@
-import bot from './assets/bot.svg';
-import user from './assets/user.svg';
-
-//we can target the form tag directly because there is only one form
-//same with the textarea prompt
-//for the chatContainer, we target the element using the id
-
 const form = document.querySelector('form');
 const textarea = document.querySelector('textarea');
 const chatContainer = document.querySelector('#chat_container');
-let conversationHistory = [];
-let selectedModel = '';
+const modelSelect = document.getElementById('modelSelect'); // Get the select element
+
+// Initialize conversation history with a system message
+let conversationHistory = [
+    { role: "system", content: "You are a helpful assistant." }
+];
+
+// Initialize selectedModel with the dropdown's current value on load
+let selectedModel = modelSelect.value;
 
 let loadInterval;
 
-//displays the loading dots when waiting for codex's answer to prompt
+// Displays the loading dots when waiting for the AI's answer
 function loader(element) {
   element.textContent = '';
-
   loadInterval = setInterval(() => {
     element.textContent += '.';
-
     if (element.textContent === '....') {
       element.textContent = '.';
     }
-  }, 300)
+  }, 300);
 }
 
-// Display the entire text with language label and apply Prism highlighting at once
-function outputAIText(element, text, language) {
-  // Extract language from triple backticks, if present
-  const codeBlockRegex = /\n?```([a-zA-Z]+)?\s*([\s\S]*?)```\n?\n?/g;
-  text = text.replace(codeBlockRegex, (match, lang, code) => {
-    language = lang || language || ''; // Use specified language or fallback to empty string
-    const supportedLanguages = ["javascript", "java", "html", "css", "python", "batch", "powershell", "typescript", "c", "csharp", "cpp", "ruby", "go", "swift"];
-    let filteredLanguage = supportedLanguages.includes(language) ? `${language}` : "text";
+// Renders the AI's response, handling code blocks and syntax highlighting
+// function outputAIText(element, text) {
+//     const codeBlocks = [];
+//     let tempText = text.replace(/```([a-zA-Z]*)\n([\s\S]*?)```/g, (match, lang, code) => {
+//         const id = `___CODE_BLOCK_${codeBlocks.length}___`;
+//         codeBlocks.push({ id, lang, code });
+//         return id;
+//     });
 
-    const highlightedCode = Prism.highlight(code, Prism.languages[filteredLanguage], filteredLanguage);
-    return `<div class="code-container">
-              <div class="top-bar">
-                <span class="language-label">${language}</span>
-                <span class="copy-code">
-                  <button class="copy-code-snippet" onclick="copyCodeSnippetToClipboard(this)">
-                  Copy code 📋
-                  </button>
-                </span>
-              </div>
-              <pre class="language-${filteredLanguage}"><code>${highlightedCode}</code></pre>
-            </div>`;
-  });
+//     let html = marked.parse(tempText);
 
-  element.innerHTML = text;
+//     codeBlocks.forEach(block => {
+//         const language = block.lang.trim().toLowerCase() || 'text';
+//         const supportedLanguages = ["javascript", "jsx", "java", "html", "css", "python", "batch", "powershell", "typescript", "c", "csharp", "cpp", "ruby", "go", "swift"];
+//         const prismLanguage = supportedLanguages.includes(language) ? language : 'markup';
+        
+//         const highlightedCode = Prism.highlight(block.code, Prism.languages[prismLanguage] || Prism.languages.markup, prismLanguage);
 
-  // Highlight code blocks enclosed in triple backticks
-  const codeBlocks = element.querySelectorAll('.code-container code');
-  codeBlocks.forEach(block => {
-    Prism.highlightElement(block);
-  });
-}
+//         const codeHtml = `<div class="code-container">
+//                             <div class="top-bar">
+//                                 <span class="language-label">${language}</span>
+//                                 <button class="copy-code-snippet" onclick="copyCodeSnippetToClipboard(this)">
+//                                     <i data-lucide="copy"></i>
+//                                     <span>Copy</span>
+//                                 </button>
+//                             </div>
+//                             <pre class="language-${prismLanguage}"><code>${highlightedCode}</code></pre>
+//                         </div>`;
+//         html = html.replace(block.id, codeHtml);
+//     });
 
-//generates unique random id
+//     element.innerHTML = html;
+// }
+
+marked.setOptions({
+  gfm: true,
+  breaks: true,
+  sanitize: false
+});
+
+
+// Generates a unique random ID for each message
 function generateUniqueId() {
   const timestamp = Date.now();
   const randomNumber = Math.random();
@@ -66,133 +73,201 @@ function generateUniqueId() {
   return `id-${timestamp}-${hexadecimalString}`;
 }
 
-//function to update the model value based on the selected option
+// Updates the model value when the user changes the dropdown
 export function updateModel() {
-  let gptModel = document.getElementById('modelSelect');
-  // Update the global variable with the selected model
-  selectedModel = gptModel.value;
-
-  // Log the selected model for demonstration purposes
+  selectedModel = modelSelect.value;
   console.log('Selected Model:', selectedModel);
 }
+// Attach the function to the window object so it can be called from the HTML
+window.updateModel = updateModel;
 
-//create striped background in chat to determine if AI is speaking or we are
+
+// Creates the HTML for a chat stripe (either user or AI)
 function chatStripe(isAi, value, uniqueId) {
   return (
     `
-    <div class="wrapper ${isAi && 'ai'}">
+    <div class="wrapper ${isAi ? 'ai' : ''}">
       <div class="chat">
         <div class="profile">
-          <img
-            src="${isAi ? bot : user}"
-            alt="${isAi ? 'bot' : 'user'}"
-          />
+          <i data-lucide="${isAi ? 'bot' : 'user'}"></i>
         </div>
         <div class="message" id=${uniqueId}>${value}</div>
-        ${isAi ? `<button style="font-size: 26px" onclick="copyToClipboard('${uniqueId}')">📋</button>` : ''}
+        ${isAi ? `<button class="copy-btn" title="Copy response" onclick="copyToClipboard('${uniqueId}')"><i data-lucide="copy"></i></button>` : ''}
       </div>
     </div>
     `
   );
 }
 
+// Copy full message text to clipboard
 window.copyToClipboard = function(id) {
-  const textToCopy = document.getElementById(id).textContent;
-  navigator.clipboard.writeText(textToCopy)
+  const messageElement = document.getElementById(id);
+  // Use innerText to get the text as it's rendered, which is better for copying
+  navigator.clipboard.writeText(messageElement.innerText);
 };
 
+// Copy only the code snippet to clipboard
 window.copyCodeSnippetToClipboard = function(buttonElement) {
   const codeContainer = buttonElement.closest('.code-container');
-  const textToCopy = codeContainer.querySelector('code').textContent;
-  navigator.clipboard.writeText(textToCopy);
+  const codeElement = codeContainer.querySelector('code');
+  navigator.clipboard.writeText(codeElement.innerText).then(() => {
+    const copySpan = buttonElement.querySelector('span');
+    const originalText = copySpan.innerText;
+    copySpan.innerText = 'Copied!';
+    setTimeout(() => {
+        copySpan.innerText = originalText;
+    }, 2000);
+  });
 };
 
-
-//what to do when the prompt is submitted
+// Handles the form submission
 const handleSubmit = async (e) => {
-  //by default, submitting a form in browser reloads the page
   e.preventDefault();
 
   const data = new FormData(form);
-  const userMessage = data.get('prompt');
+  const userMessage = data.get('prompt').trim();
+  
+  if (!userMessage) return; // Don't send empty messages
 
   // Add the user's message to the conversation history
   conversationHistory.push({ role: "user", content: userMessage });
-  // Resets the height to its original value
-  textarea.style.height = '';  
-
-  //user's chatStripe
+  
+  textarea.style.height = 'auto'; // Reset textarea height
+  
+  // Display user's message
   chatContainer.innerHTML += chatStripe(false, userMessage);
+  lucide.createIcons();
   form.reset();
 
-  //bot's chatStripe
+  // Prepare bot's chat stripe
   const uniqueId = generateUniqueId();
   chatContainer.innerHTML += chatStripe(true, " ", uniqueId);
-
-  //scroll with answer as it is being typed out
+  lucide.createIcons();
   chatContainer.scrollTop = chatContainer.scrollHeight;
 
   const messageDiv = document.getElementById(uniqueId);
-
   loader(messageDiv);
 
-  //fetch data from server -> bot's response
-  const response = await fetch(
-    'https://codex-edaa.onrender.com'
-    // uncomment to test server locally - 'http://localhost:5000'
-    // go to cd server and npm start server, then from client in another terminal window npm run dev
-    , {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      model: selectedModel,
-      prompt: userMessage
-    })
-  })
+  try {
+    // const response = await fetch('https://codex-edaa.onrender.com', {
+    const response = await fetch('http://localhost:5001', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: selectedModel,
+        messages: conversationHistory 
+      })
+    });
 
-  clearInterval(loadInterval);
-  messageDiv.innerHTML = '';
+    clearInterval(loadInterval);
+    messageDiv.innerHTML = '';
 
-  if(response.ok) {
-    const data = await response.json();
-    const botMessage = data.bot.trim();
+    if (!response.ok) {
+      const errData = await response.json();
+      throw new Error(errData.error || 'The server responded with an error.');
+    }
 
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let botMessage = '';
+    let buffer = '';
+    let isInCodeBlock = false;
+    let currentCodeBlock = '';
+    let codeLanguage = '';
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const dataStr = line.substring(6).trim();
+
+          if (dataStr === '[DONE]') {
+            // Don't re-render at the end, just update conversation history
+            conversationHistory.push({ role: "assistant", content: botMessage });
+            return;
+          }
+
+          try {
+            const json = JSON.parse(dataStr);
+            const content = json.choices?.[0]?.delta?.content;
+            if (content) {
+              botMessage += content;
+              
+              // Process the message for rendering
+              let displayMessage = botMessage;
+              
+              // Handle code blocks during streaming
+              const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
+              displayMessage = displayMessage.replace(codeBlockRegex, (match, lang, code) => {
+                const language = (lang || '').trim().toLowerCase() || 'text';
+                const supportedLanguages = ["javascript", "jsx", "java", "html", "css", "python", "batch", "powershell", "typescript", "c", "csharp", "cpp", "ruby", "go", "swift"];
+                const prismLanguage = supportedLanguages.includes(language) ? language : 'markup';
+                
+                const highlightedCode = Prism.highlight(
+                  code, 
+                  Prism.languages[prismLanguage] || Prism.languages.markup, 
+                  prismLanguage
+                );
+
+                return `<div class="code-container">
+                  <div class="top-bar">
+                    <span class="language-label">${language}</span>
+                    <button class="copy-code-snippet" onclick="copyCodeSnippetToClipboard(this)">
+                      <i data-lucide="copy"></i>
+                      <span>Copy</span>
+                    </button>
+                  </div>
+                  <pre class="language-${prismLanguage}"><code>${highlightedCode}</code></pre>
+                </div>`;
+              });
+
+              // Convert markdown and display
+              messageDiv.innerHTML = marked.parse(displayMessage);
+              lucide.createIcons();
+              chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+          } catch (err) {
+            console.error("Failed to parse stream data:", err);
+          }
+        }
+      }
+    }
+
+    // Don't re-render at the end
     conversationHistory.push({ role: "assistant", content: botMessage });
 
-    console.log({parsedData: botMessage});
-    outputAIText(messageDiv, botMessage);
-  } else {
-    const err = await response.text();
-
-    messageDiv.innerHTML = "Something went wrong";
-    console.log(err);
-    alert(err);
+  } catch (error) {
+    clearInterval(loadInterval);
+    messageDiv.innerHTML = "Something went wrong. Please check the console.";
+    console.error(error);
+    alert(error.message);
   }
 }
 
-//listeners for submit button and adjust textarea height
 form.addEventListener('submit', handleSubmit);
 
-const maxTextAreaHeight = window.innerHeight * 0.5; //max 50% of screen height
-textarea.style.overflowY = 'auto'; // enable scrolling
+// Auto-resize textarea logic
+const maxTextAreaHeight = window.innerHeight * 0.5;
+textarea.style.overflowY = 'auto';
 
 textarea.addEventListener('input', () => {
-  if(textarea.scrollHeight <= maxTextAreaHeight) {
-    // auto resize textarea when content doesn't exceed 50% screen height
-    textarea.style.height = 'auto';
-    textarea.style.height = `${textarea.scrollHeight}px`;
-  } else {
-    // fix textarea height at 50% screen height when content exceeds it
-    textarea.style.height = `${maxTextAreaHeight}px`;
-  }
+  textarea.style.height = 'auto';
+  const newHeight = Math.min(textarea.scrollHeight, maxTextAreaHeight);
+  textarea.style.height = `${newHeight}px`;
 });
 
-
-//do we want to have enter submit the form? For now, no.
-/*form.addEventListener('keyup', (e) => {
-  if(e.keyCode === 13) { //13 = enter key
-    handleSubmit(e);
-  }
-});*/
+// Allow submitting with Enter, but not Shift+Enter for new lines
+textarea.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault(); // Prevent new line on Enter
+        handleSubmit(e);
+    }
+});

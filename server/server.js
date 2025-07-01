@@ -1,15 +1,13 @@
 import express from 'express';
 import * as dotenv from 'dotenv';
 import cors from 'cors';
-import { Configuration, OpenAIApi } from 'openai';
+import OpenAI from 'openai';
 
 dotenv.config();
 
-const configuration = new Configuration({
+const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
-
-const openai = new OpenAIApi(configuration);
 
 const app = express();
 app.use(cors());
@@ -21,58 +19,50 @@ app.get('/', async (req, res) => {
     })
 });
 
-const conversationHistory = []; // Initialize an empty conversation history array
-conversationHistory.push({ role: "system", content: "You are a helpful assistant." }); // Add system background - can customize later
-
-//post to openai from a text model
-//for pricing details, see - https://openai.com/api/pricing/#faq-fine-tuning-pricing-calculation
 app.post('/', async (req, res) => {
     try {
-        const gptModel = req.body.model || "gpt-4o-mini";
-        const userMessage = req.body.prompt;
-        console.log(gptModel);
+        const { model, messages } = req.body;
+        const gptModel = model || "gpt-4o-mini";
 
-        conversationHistory.push({ role: "user", content: userMessage }); // Add user message to conversation history
-        const response = await openai.createChatCompletion({
-            model: gptModel, //see GPT models here: https://platform.openai.com/docs/api-reference/chat/create
-            messages: 
-            conversationHistory, // Using entire conversation history in API call so that we can have convos
-        })
+        if (!messages || messages.length === 0) {
+            return res.status(400).send({ error: "No messages provided." });
+        }
 
-        // Add bot's response to convo history as well
-        conversationHistory.push({ role: "assistant", content: response.data.choices[0].message.content });
+        // Set headers for Server-Sent Events (SSE)
+        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+        res.flushHeaders();
 
-        res.status(200).send({
-            bot: response.data.choices[0].message.content
-        })
+        // Use the new API method and handle the stream with a for-await-of loop
+        const stream = await openai.chat.completions.create({
+            model: gptModel,
+            messages: messages,
+            stream: true,
+        });
+
+        // The client-side code is expecting the stream chunks in SSE format ('data: {...}\n\n').
+        // The v4 SDK stream provides JSON objects directly. We must format them before sending.
+        for await (const chunk of stream) {
+            // The chunk is a JSON object. Stringify it and format it as an SSE message.
+            res.write(`data: ${JSON.stringify(chunk)}\n\n`);
+        }
+
+        // After the loop finishes, the stream is done.
+        // We must send a final [DONE] message so the client knows to stop listening.
+        res.write('data: [DONE]\n\n');
+        res.end();
+
     } catch (error) {
-        if (error.response) {
-            // The request was made and the server responded with a status code
-            console.log(error.response.data);
-            console.log(error.response.status);
-            console.log(error.response.headers);
-            res.status(error.response.status).send({ error: error.response.data });
-        } else if (error.request) {
-            // The request was made but no response was received
-            console.log(error.request);
-            res.status(500).send({ error: 'No response from the server' });
-        } else {
-            // Something happened in setting up the request that triggered an Error
-            console.log('Error', error.message);
-            res.status(500).send({ error: error.message });
+        console.error('API Error:', error);
+        // Ensure we don't try to send a response if headers are already sent
+        if (!res.headersSent) {
+             res.status(500).json({ error: 'An internal server error occurred.' });
+        } else if (!res.writableEnded) {
+            // If stream is open, just end it.
+            res.end();
         }
     }
 });
 
-app.listen(5000, () => console.log('Server is running on port http://localhost:5000'));
-
-function logRoleAndContent(position, arrayOfObjects) {
-    console.log(position);
-    for (const item of arrayOfObjects) {
-        if (item.hasOwnProperty('role') && item.hasOwnProperty('content')) {
-            console.log(`Role: ${item.role}, Content: ${item.content}`);
-        } else {
-            console.log('Invalid item format:', item);
-        }
-    }
-}
+app.listen(5001, () => console.log('Server is running on port http://localhost:5001'));

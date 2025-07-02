@@ -24,39 +24,7 @@ function loader(element) {
   }, 300);
 }
 
-// Renders the AI's response, handling code blocks and syntax highlighting
-// function outputAIText(element, text) {
-//     const codeBlocks = [];
-//     let tempText = text.replace(/```([a-zA-Z]*)\n([\s\S]*?)```/g, (match, lang, code) => {
-//         const id = `___CODE_BLOCK_${codeBlocks.length}___`;
-//         codeBlocks.push({ id, lang, code });
-//         return id;
-//     });
 
-//     let html = marked.parse(tempText);
-
-//     codeBlocks.forEach(block => {
-//         const language = block.lang.trim().toLowerCase() || 'text';
-//         const supportedLanguages = ["javascript", "jsx", "java", "html", "css", "python", "batch", "powershell", "typescript", "c", "csharp", "cpp", "ruby", "go", "swift"];
-//         const prismLanguage = supportedLanguages.includes(language) ? language : 'markup';
-        
-//         const highlightedCode = Prism.highlight(block.code, Prism.languages[prismLanguage] || Prism.languages.markup, prismLanguage);
-
-//         const codeHtml = `<div class="code-container">
-//                             <div class="top-bar">
-//                                 <span class="language-label">${language}</span>
-//                                 <button class="copy-code-snippet" onclick="copyCodeSnippetToClipboard(this)">
-//                                     <i data-lucide="copy"></i>
-//                                     <span>Copy</span>
-//                                 </button>
-//                             </div>
-//                             <pre class="language-${prismLanguage}"><code>${highlightedCode}</code></pre>
-//                         </div>`;
-//         html = html.replace(block.id, codeHtml);
-//     });
-
-//     element.innerHTML = html;
-// }
 
 marked.setOptions({
   gfm: true,
@@ -201,36 +169,40 @@ const handleSubmit = async (e) => {
             if (content) {
               botMessage += content;
               
-              // Process the message for rendering
-              let displayMessage = botMessage;
-              
-              // Handle code blocks during streaming
-              const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
-              displayMessage = displayMessage.replace(codeBlockRegex, (match, lang, code) => {
-                const language = (lang || '').trim().toLowerCase() || 'text';
-                const supportedLanguages = ["javascript", "jsx", "java", "html", "css", "python", "batch", "powershell", "typescript", "c", "csharp", "cpp", "ruby", "go", "swift"];
-                const prismLanguage = supportedLanguages.includes(language) ? language : 'markup';
-                
-                const highlightedCode = Prism.highlight(
-                  code, 
-                  Prism.languages[prismLanguage] || Prism.languages.markup, 
-                  prismLanguage
-                );
+              // Convert markdown and display
+              messageDiv.innerHTML = marked.parse(botMessage);
 
-                return `<div class="code-container">
-                  <div class="top-bar">
-                    <span class="language-label">${language}</span>
-                    <button class="copy-code-snippet" onclick="copyCodeSnippetToClipboard(this)">
-                      <i data-lucide="copy"></i>
-                      <span>Copy</span>
-                    </button>
-                  </div>
-                  <pre class="language-${prismLanguage}"><code>${highlightedCode}</code></pre>
-                </div>`;
+              // Manually wrap and highlight code blocks
+              const codeBlocks = messageDiv.querySelectorAll('pre code');
+              codeBlocks.forEach((codeBlock) => {
+                const preElement = codeBlock.parentElement;
+                const language = codeBlock.className.replace('language-', '') || 'plaintext';
+
+                const codeContainer = document.createElement('div');
+                codeContainer.className = 'code-container';
+
+                const topBar = document.createElement('div');
+                topBar.className = 'top-bar';
+
+                const langLabel = document.createElement('span');
+                langLabel.className = 'language-label';
+                langLabel.innerText = language;
+
+                const copyButton = document.createElement('button');
+                copyButton.className = 'copy-code-snippet';
+                copyButton.innerHTML = `<i data-lucide="copy"></i><span>Copy</span>`;
+                copyButton.onclick = () => copyCodeSnippetToClipboard(copyButton);
+
+                topBar.appendChild(langLabel);
+                topBar.appendChild(copyButton);
+
+                codeContainer.appendChild(topBar);
+                preElement.parentNode.insertBefore(codeContainer, preElement);
+                codeContainer.appendChild(preElement);
+
+                hljs.highlightBlock(codeBlock);
               });
 
-              // Convert markdown and display
-              messageDiv.innerHTML = marked.parse(displayMessage);
               lucide.createIcons();
               chatContainer.scrollTop = chatContainer.scrollHeight;
             }
